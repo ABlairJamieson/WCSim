@@ -20,6 +20,7 @@ class G4ParticleGun;
 class G4GeneralParticleSource;
 class G4Event;
 class WCSimPrimaryGeneratorMessenger;
+class WCSimLEDMessenger;
 
 class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
@@ -73,8 +74,10 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4ParticleGun*                  particleGun;
         G4GeneralParticleSource*        MyGPS;  //T. Akiri: GPS to run Laser
         WCSimPrimaryGeneratorMessenger* messenger;
+       WCSimLEDMessenger*              ledmsg;
 
         // Variables set by the messenger
+        G4bool   useLEDEvt;
         G4bool   useMulineEvt;
         G4bool   useRootrackerEvt;
         G4bool   useGunEvt;
@@ -122,6 +125,11 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     public:
 
         inline TFile* GetInputRootrackerFile(){ return fInputRootrackerFile;}
+
+
+        inline void SetLEDEvtGenerator(G4bool choice) { useLEDEvt = choice; }
+        inline G4bool IsUsingLEDEvtGenerator() { return useLEDEvt; }
+
 
         inline void SetMulineEvtGenerator(G4bool choice) { useMulineEvt = choice; }
         inline G4bool IsUsingMulineEvtGenerator() { return useMulineEvt; }

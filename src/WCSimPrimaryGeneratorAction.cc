@@ -1,13 +1,16 @@
 #include "WCSimPrimaryGeneratorAction.hh"
 #include "WCSimDetectorConstruction.hh"
 #include "WCSimPrimaryGeneratorMessenger.hh"
+#include "WCSimLEDMessenger.hh"
 
+#include "G4OpticalPhoton.hh"
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ThreeVector.hh"
+#include "G4RandomDirection.hh"
 #include "globals.hh"
 #include "Randomize.hh"
 #include <fstream>
@@ -20,10 +23,12 @@
 #include "G4TransportationManager.hh"
 
 #include "TRandom3.h"
+#include "TVector3.h"
 
 using std::vector;
 using std::string;
 using std::fstream;
+using namespace PB;
 
 vector<string> tokenize( string separators, string input );
 
@@ -68,6 +73,10 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
     SetParticlePosition(G4ThreeVector(0.*m,0.*m,0.*m));
     
   messenger = new WCSimPrimaryGeneratorMessenger(this);
+
+  ledmsg = new WCSimLEDMessenger();
+
+  useLEDEvt = false;
   useMulineEvt = true;
   useGunEvt    = false;
   useLaserEvt  = false;
@@ -94,6 +103,7 @@ WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
     delete particleGun;
     delete MyGPS;   //T. Akiri: Delete the GPS variable
     delete messenger;
+    delete ledmsg;
 }
 
 void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
@@ -109,7 +119,6 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   if (useMulineEvt)
   { 
-
     if ( !inputFile.is_open() )
     {
       G4cout << "Set a vector file using the command /mygen/vecfile name"
@@ -375,9 +384,6 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     mode            = PARTICLEGUN;
 
-//     particleGun->SetParticleEnergy(E);
-//     particleGun->SetParticlePosition(vtx);
-//     particleGun->SetParticleMomentumDirection(dir);
     SetVtx(vtx);
     SetBeamEnergy(E);
     SetBeamDir(dir);
@@ -394,9 +400,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       G4int pdg         =anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
       
       G4ThreeVector dir  = P.unit();
-      //G4double E         = std::sqrt((P.dot(P)));
       G4double E         = std::sqrt((P.dot(P))+(m*m));
-      //std::cout << "Energy " << E << " eV " << std::endl;
 
       mode            = LASER; //actually could also be particle gun here. Gps and laser will be separate soon!!
 
@@ -408,7 +412,6 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   else if (useGPSEvt)
     {
       MyGPS->GeneratePrimaryVertex(anEvent);
-      
       G4ThreeVector P   =anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum();
       G4ThreeVector vtx =anEvent->GetPrimaryVertex()->GetPosition();
       G4double m        =anEvent->GetPrimaryVertex()->GetPrimary()->GetMass();
@@ -422,6 +425,28 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       SetBeamDir(dir);
       SetBeamPDG(pdg);
     }
+  else if ( useLEDEvt ){
+    G4Event fooEvent = *anEvent;
+    MyGPS->GeneratePrimaryVertex( &fooEvent);
+
+    int numparticles = MyGPS->GetNumberOfParticles();
+    int numsource = MyGPS->GetNumberofSource();
+    
+    G4PrimaryVertex * g4vtx = fooEvent.GetPrimaryVertex();
+    numparticles = g4vtx->GetNumberOfParticle();
+    // set particleGun to fire "optical photons"
+    particleGun->SetParticleDefinition( G4OpticalPhoton::Definition() );
+    particleGun->SetParticlePosition( g4vtx->GetPosition() );
+    
+    for ( int ii = 0 ; ii < numparticles; ++ii ){
+      G4PrimaryParticle * curparticle = g4vtx->GetPrimary( ii );
+      particleGun->SetParticleEnergy( curparticle->GetMomentum().mag()  );
+      particleGun->SetParticleMomentumDirection( curparticle->GetMomentum().unit() );
+      particleGun->SetParticleTime( ledmsg->GetTime()*ns );
+      particleGun->SetParticlePolarization( G4RandomDirection() );
+      particleGun->GeneratePrimaryVertex( anEvent );
+    }
+  }
 }
 
 void WCSimPrimaryGeneratorAction::SaveOptionsToOutput(WCSimRootOptions * wcopt)
@@ -445,6 +470,8 @@ G4String WCSimPrimaryGeneratorAction::GetGeneratorTypeString()
     return "laser";
   else if(useRootrackerEvt)
     return "rooTrackerEvt";
+  else if (useLEDEvt)
+    return "led";
   return "";
 }
 
