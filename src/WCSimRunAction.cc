@@ -155,14 +155,18 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
   flatfile->SetCompressionLevel(2); //default is 1 (minimal compression)
   masterTree = new TTree("MasterTree","Main WCSim Tree");
   if(wcsimdetector->GetIsNuPrism()){
-    if(GetSaveRooTracker())
+    if(GetSaveRooTracker()) {
       //Already have fSettingsInputTree and branched it
       if(fSettingsInputTree){
 	geomTree = fSettingsInputTree->CloneTree(0);
 	geomTree->SetObject("Geometry","Geometry, Software version and generation settings");
-      } else
+      } else {
 	geomTree = new TTree("Geometry","Geometry Tree");
-    
+      }
+    } else {
+      geomTree = new TTree("Geometry","Geometry Tree");
+    }
+
     geomTree->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/F");
     geomTree->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/F");
     geomTree->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/F");
@@ -460,7 +464,6 @@ void WCSimRunAction::FillGeoTree(){
           fSettingsInputTree->GetEntry(0);
           double z_offset = fNuPlanePos[2]/100.0 + fNuPrismRadius;
           WCDetCentre[2] += z_offset;
-          std::cout << "WCDetCentre[2] = " << WCDetCentre[2] << std::endl;
       }
 
       fSettingsOutputTree->Fill();
@@ -577,7 +580,6 @@ void WCSimRunAction::FillFlatGeoTree(){
       fSettingsInputTree->GetEntry(0);
       double z_offset = fNuPlanePos[2]/100.0 + fNuPrismRadius;
       WCDetCentre[2] += z_offset;
-      std::cout << "WCDetCentre[2] = " << WCDetCentre[2] << std::endl;
     }
   } 
 
