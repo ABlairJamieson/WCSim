@@ -11,7 +11,6 @@ class G4UIcmdWithAnInteger;
 class G4UIcmdWithABool;
 
 #include <iostream>
-#include "PhotonBomb.hh"
 #include "LEDTimeDistro.hh"
 #include "G4UImessenger.hh"
 #include "globals.hh"

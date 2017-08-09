@@ -45,7 +45,7 @@
 #/WCSim/PMTQEMethod     DoNotApplyQE
 
 #turn on or off the collection efficiency
-/WCSim/PMTCollEff on
+/WCSim/PMTCollEff off
 
 # command to choose save or not save the pi0 info 07/03/10 (XQ)
 /WCSim/SavePi0 false
@@ -60,7 +60,7 @@
 
 # default dark noise frequency (and conversion factor) is PMT property (NEW), set in the code.
 # Below gives possibility to overwrite nominal values, eg. to switch OFF the Dark Noise.
-#/DarkRate/SetDarkRate 0 kHz   #Turn dark noise off
+/DarkRate/SetDarkRate 0 kHz   #Turn dark noise off
 #/DarkRate/SetDarkRate 4.2 kHz #This is the value for SKI set in SKDETSIM.
 #/DarkRate/SetDarkRate 8.4 kHz #For 20 inch HPDs and Box and Line PMTs, based on High QE 20in R3600 dark rate from EGADS nov 2014
 #/DarkRate/SetDarkRate 3.0 kHz #For 12 inch HPDs and Box and Line PMTs, based on High QE 20in R3600 dark rate from EGADS nov 2014
@@ -78,8 +78,8 @@
 #/DarkRate/SetDarkMode 1 adds dark noise hits to a window of
 #width /DarkRate/SetDarkWindow [time in ns] around each hit
 #i.e. hit time ± (/DarkRate/SetDarkWindow) / 2
-/DarkRate/SetDarkMode 1
-/DarkRate/SetDarkHigh 100000
+/DarkRate/SetDarkMode 0
+/DarkRate/SetDarkHigh 0
 /DarkRate/SetDarkLow 0
 /DarkRate/SetDarkWindow 4000
 
@@ -130,7 +130,7 @@
 #/gps/direction 1 0 0
 #/gps/particle mu+
 #/gps/energy 500 MeV
-/gps/number 50000
+/gps/number 100000
 
 
 # Select LED, and set its properties
@@ -139,29 +139,38 @@
 # Try to set optical photons starting at mPMT module with
 #num x  y z dir_x dir_y dir_z 
 #1121 * 300.71359 * -1014.407 * -14.32475 * -0.998867 * -5.83e-17 * 0.0475819
-/gps/position 290.71359 -1014.407 -14.32475 cm
+#/gps/position 290.71359 -1014.407 -14.32475 cm
 #/gps/direction -0.998867 0.0 0.0475819
- 
+/gps/position 0.0 -1000.0 0.0  
+
 /gps/ang/type iso
-/gps/ang/mintheta 160 deg # 20 degree about z direction
+#/gps/ang/mintheta 160 deg # 20 degree about z direction
 # assume rot1 and rot2 define xy plane, then theta is relative to -z
 # rot1 defines the x axis, and rot2 is another vector in xy plane
-/gps/ang/rot1 0.0 -0.0475819 0.998867
-/gps/ang/rot2 0 1 0           
+#/gps/ang/rot1 0.0 -0.0475819 0.998867
+#/gps/ang/rot2 0 1 0           
 
 
 
 # Set LED settings
-/led/NsType       2             # 0=use min and max flat distr., 
+/led/NsType       0             # 0=use min and max flat distr., 
                                 # 1=use mean and sigma distr.
 				# anything else =use textfile to read distribution
 /led/NsSigma      40.0           # ns
 /led/NsMean       80.0           # ns
-/led/NsMin        10.0           # ns
-/led/NsMax       50.0           # ns
+/led/NsMin        0.0           # ns
+/led/NsMax        0.1           # ns
 #/led/NsFile   timedistro_trise5.000000_tfall15.000000_on10.000000.txt
 #/led/NsFile timedistro_trise1.000000_tfall0.100000_on5.000000.txt
-/led/NsFile timedistro_trise20.000000_tfall1.000000_on50.000000.txt
+#/led/NsFile timedistro_trise20.000000_tfall1.000000_on50.000000.txt
+
+
+# Time offset settings
+# Type of offset: 0==none (default), 1==file, 2==mean,sigma
+/toffs/type 2
+/toffs/mean 0.0
+/toffs/sigma 10.0
+/toffs/file "timeoffsets.txt"
 
 #/gps/ang/type iso
 #/gps/ang/mintheta 0 deg
@@ -173,11 +182,11 @@
 #/Tracking/fractionOpticalPhotonsToDraw 0.0
 
 ## change the name of the output root file, default = wcsim.root
-/WCSimIO/RootFile wcsim_isophotons_gpstest.root
+/WCSimIO/RootFile wcsim_isophotons_toffs.root
 
 ## Boolean to select whether to save the NEUT RooTracker vertices in the output file, provided you used
 ## a NEUT vector file as input
 /WCSimIO/SaveRooTracker 0
 
-/run/beamOn 5
+/run/beamOn 10
 #exit

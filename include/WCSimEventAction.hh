@@ -29,6 +29,8 @@ private:
 
   TRandom3 * randGen;
   WCSimWCDAQMessenger* DAQMessenger;
+
+  //  WCSimTimeOffsets * wcToffs;
   
 public:
   WCSimEventAction(WCSimRunAction*, WCSimDetectorConstruction*,

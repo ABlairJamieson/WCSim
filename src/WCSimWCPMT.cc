@@ -14,6 +14,8 @@
 #include "WCSimPmtInfo.hh"
 #include "WCSimPMTObject.hh"
 
+#include "WCSimTimeOffsets.hh"
+
 
 #include <vector>
 // for memset
@@ -31,8 +33,8 @@ WCSimWCPMT::WCSimWCPMT(G4String name,
   this->myDetector = myDetector;
   collectionName.push_back(colName);
   DigiHitMapPMT.clear();
-  
 
+  wcToffs = new  WCSimTimeOffsets();
 }
 
 WCSimWCPMT::~WCSimWCPMT(){
@@ -62,6 +64,7 @@ G4double WCSimWCPMT::rn1pe(){
 
 void WCSimWCPMT::Digitize()
 {
+  static bool firstcall=true;
   DigitsCollection = new WCSimWCDigitsCollection ("WCDigitizedCollectionPMT",collectionName[0]);
   G4String WCIDCollectionName = myDetector->GetIDCollectionName();
   G4DigiManager* DigiMan = G4DigiManager::GetDMpointer();
@@ -74,6 +77,10 @@ void WCSimWCPMT::Digitize()
     (WCSimWCHitsCollection*)(DigiMan->GetHitsCollection(WCHCID));
 
   if (WCHC) {
+    if (firstcall==true){
+      wcToffs->SetNPMTs( myDetector->GetTotalNumPmts() );
+      firstcall=false;
+    }
 
     MakePeCorrection(WCHC);
     
@@ -139,6 +146,10 @@ void WCSimWCPMT::MakePeCorrection(WCSimWCHitsCollection* WCHC)
 	    //apply time smearing
 	    float Q = (peSmeared > 0.5) ? peSmeared : 0.5;
 	    time_PMT = time_true + PMT->HitTimeSmearing(Q);
+
+	    // Add "electronics/cable" time offsets
+	    // -------------------- Blair Jamieson -- Aug, 2017
+	    time_PMT += wcToffs->GetTimeOffset( tube );
 
 	    if ( DigiHitMapPMT[tube] == 0) {
 	      WCSimWCDigi* Digi = new WCSimWCDigi();

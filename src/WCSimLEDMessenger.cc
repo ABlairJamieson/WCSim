@@ -15,8 +15,6 @@
 #include "TRandom.h"
 
 
-using namespace PB;
-
 //=========================================================================
 WCSimLEDMessenger::WCSimLEDMessenger() :
   ledNsType(0),

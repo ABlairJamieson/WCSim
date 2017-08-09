@@ -11,6 +11,8 @@
 #include <map>
 #include <vector>
 
+class WCSimTimeOffsets;
+
 
 class WCSimWCPMT : public G4VDigitizerModule
 {
@@ -39,6 +41,9 @@ public:
 
   WCSimWCDigitsCollection*  DigitsCollection;  
   WCSimDetectorConstruction* myDetector;
+
+protected:
+  WCSimTimeOffsets* wcToffs; // electronics/ cable delays per PMT
 
 };
 

@@ -75,6 +75,8 @@ WCSimEventAction::WCSimEventAction(WCSimRunAction* myRun,
   //create dark noise module
   WCSimWCAddDarkNoise* WCDNM = new WCSimWCAddDarkNoise("WCDarkNoise", detectorConstructor);
   DMman->AddNewModule(WCDNM);
+
+  //wcToffs = new WCSimTimeOffsets();
 }
 
 WCSimEventAction::~WCSimEventAction()
@@ -118,6 +120,11 @@ void WCSimEventAction::CreateDAQInstances()
   }
 
   ConstructedDAQClasses = true;
+
+  
+  
+  //wcToffs->SetNPMTs( detectorConstructor->GetTotalNumPmts() );
+
 }
 
 
@@ -326,21 +333,7 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
    // Get the digitized collection for the WC
    G4int WCDCID = DMman->GetDigiCollectionID("WCDigitizedCollection");
    WCSimWCTriggeredDigitsCollection * WCDC = (WCSimWCTriggeredDigitsCollection*) DMman->GetDigiCollection(WCDCID);
-   /*   
-   // To use Do like This:
-   // --------------------
-   if(WCDC) 
-     for (G4int i=0; i < WCDC->entries(); i++) 
-       {
-	 G4int   tubeID         = (*WCDC)[i]->GetTubeID();
-	 G4float photoElectrons = (*WCDC)[i]->GetPe(i);
-	 G4float time           = (*WCDC)[i]->GetTime(i);
-	 //	 G4cout << "time " << i << " " <<time << G4endl; 
-	 //	 G4cout << "tubeID " << i << " " <<tubeID << G4endl; 
-	 //	 G4cout << "Pe " << i << " " <<photoElectrons << G4endl; 
-	 //   (*WCDC)[i]->Print();
-       }
-   */
+    
    
   // ----------------------------------------------------------------------
   //  Fill Ntuple
