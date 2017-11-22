@@ -25,7 +25,7 @@
 // TF: ToDo: Are these required?
 #include "TFile.h"
 #include "TTree.h"
-#include "TMath.h"
+//#include "TMath.h"
 
 
 
@@ -102,7 +102,8 @@ public:
   G4int    GetMyConfiguration()   {return myConfiguration;}
   G4double GetGeo_Dm(G4int);
   G4int    GetTotalNumPmts() {return totalNumPMTs;}
-  
+  G4int    GetTotalNum_mPmts() {return totalNum_mPMTs;}         
+
   G4int    GetPMT_QE_Method(){return PMT_QE_Method;}
   G4double GetwaterTank_Length() {return waterTank_Length;} 
   G4int    UsePMT_Coll_Eff(){return PMT_Coll_Eff;}
@@ -180,12 +181,12 @@ public:
       vessel_tot_height = WCPMTRadius;
     WCBarrelPMTOffset = vessel_tot_height;                          // BarrelPMTOffset needs PMT/mPMT height
     if(!fix_nModules){
-      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage)/(10.0*vessel_radius));
+      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage)/(10.0*vessel_radius));
       if(WCBarrelNumPMTHorizontal < 1)
 	G4cerr << "Bug in dimensions as less than 1 BarrelPMT specified" << G4endl;
-      WCBarrelNRings           = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))
+      WCBarrelNRings           = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(CLHEP::pi*WCIDDiameter)))
       					/WCPMTperCellVertical));
-      WCCapPMTSpacing       = (pi*WCIDDiameter/WCBarrelNumPMTHorizontal); 
+      WCCapPMTSpacing       = (CLHEP::pi*WCIDDiameter/WCBarrelNumPMTHorizontal); 
       WCCapEdgeLimit = WCIDDiameter/2.0 - vessel_tot_height;          // CapEdgeLimit needs PMT/mPMT height
     }
   }                          
@@ -265,8 +266,8 @@ public:
     WCPMTRadius = PMT->GetRadius();
     
     WCBarrelPMTOffset     = WCPMTRadius;
-    WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
-    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))/WCPMTperCellVertical));
+    WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
+    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(CLHEP::pi*WCIDDiameter)))/WCPMTperCellVertical));
     WCCapEdgeLimit        = WCIDDiameter/2.0 - WCPMTRadius;
     
 
@@ -281,11 +282,11 @@ public:
     //     are affected.
     WCPMTPercentCoverage = cover;
     if(WCDetectorName == "NuPRISM_mPMT"){
-      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage/100.0)/vessel_radius);
+      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage/100.0)/vessel_radius);
     } else
-      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
-    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))/WCPMTperCellVertical));
-    WCCapPMTSpacing       = (pi*WCIDDiameter/WCBarrelNumPMTHorizontal);
+      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
+    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(CLHEP::pi*WCIDDiameter)))/WCPMTperCellVertical));
+    WCCapPMTSpacing       = (CLHEP::pi*WCIDDiameter/WCBarrelNumPMTHorizontal);
   }
   G4double GetPMTCoverage() {return WCPMTPercentCoverage;}
 
@@ -294,7 +295,7 @@ public:
   void   SetDetectorHeight(G4double height) {
     WCIDHeight = height;
     // Affects Number of Barrel rings:
-    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))/WCPMTperCellVertical));
+    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(CLHEP::pi*WCIDDiameter)))/WCPMTperCellVertical));
   }
   G4double GetWCIDHeight(){ return WCIDHeight; }
 
@@ -305,15 +306,15 @@ public:
     WCIDDiameter = diameter;
     // Affects several cylinder parameters:
     if(WCDetectorName == "NuPRISM_mPMT"){
-      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage/100.0)/vessel_radius);
+      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage/100.0)/vessel_radius);
       WCCapEdgeLimit        = WCIDDiameter/2.0 - vessel_radius;
     } else{
-      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
+      WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(CLHEP::pi*WCPMTPercentCoverage/100.0)/WCPMTRadius);
       WCCapEdgeLimit        = WCIDDiameter/2.0 - WCPMTRadius;
     }
     
-    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))/WCPMTperCellVertical));
-    WCCapPMTSpacing       = (pi*WCIDDiameter/WCBarrelNumPMTHorizontal);
+    WCBarrelNRings        = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(CLHEP::pi*WCIDDiameter)))/WCPMTperCellVertical));
+    WCCapPMTSpacing       = (CLHEP::pi*WCIDDiameter/WCBarrelNumPMTHorizontal);
     
 
 }
@@ -588,6 +589,7 @@ private:
   std::ofstream geoFile;   // File for text output
 
   G4int totalNumPMTs;      // The number of PMTs for this configuration     
+  G4int totalNum_mPMTs;   // The number of mPMTs (+1 for single PMT, +1 for mPMT)
   G4double WCCylInfo[3];    // Info for the geometry tree: radius & length or mail box, length, width and depth
   G4double WCPMTSize;       // Info for the geometry tree: pmt size
   G4ThreeVector WCOffset;   // Info for the geometry tree: WC center offset
@@ -599,6 +601,7 @@ private:
   // Tube map information
 
   static std::map<int, G4Transform3D> tubeIDMap;
+  static std::map<int, std::pair< int, int > > mPMTIDMap; //maps tubeID to corresponding mPMT and mPMT_pmt ID
 //  static std::map<int, cyl_location> tubeCylLocation;
   //static hash_map<std::string, int, hash<std::string> >  tubeLocationMap_old;                //Deprecated
   static std::unordered_map<std::string, int, std::hash<std::string> >  tubeLocationMap; 
@@ -621,6 +624,7 @@ private:
   G4double id_reflector_z_offset;
   G4double id_reflector_angle;
   G4int nID_PMTs;
+  G4String wcsimdir_path;
   G4String config_file;
   G4String mPMT_ID_PMT; //or ToDo: ideally ENUM
   G4String mPMT_OD_PMT;

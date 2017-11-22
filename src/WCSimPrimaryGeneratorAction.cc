@@ -25,6 +25,9 @@
 #include "TRandom3.h"
 #include "TVector3.h"
 
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+
 using std::vector;
 using std::string;
 using std::fstream;
@@ -425,13 +428,15 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       SetBeamPDG(pdg);
     }
   else if ( useLEDEvt ){
-    G4Event fooEvent = *anEvent;
-    MyGPS->GeneratePrimaryVertex( &fooEvent);
+    //    G4Event fooEvent = *anEvent;
+    G4Event * fooEvent = new  G4Event;
+    //const & G4Event cr_fooEvent = fooEvent;
+    MyGPS->GeneratePrimaryVertex( fooEvent);
 
     int numparticles = MyGPS->GetNumberOfParticles();
     int numsource = MyGPS->GetNumberofSource();
     
-    G4PrimaryVertex * g4vtx = fooEvent.GetPrimaryVertex();
+    G4PrimaryVertex * g4vtx = fooEvent->GetPrimaryVertex();
     numparticles = g4vtx->GetNumberOfParticle();
     // set particleGun to fire "optical photons"
     particleGun->SetParticleDefinition( G4OpticalPhoton::Definition() );
@@ -445,6 +450,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       particleGun->SetParticlePolarization( G4RandomDirection() );
       particleGun->GeneratePrimaryVertex( anEvent );
     }
+    delete fooEvent;
   }
 }
 

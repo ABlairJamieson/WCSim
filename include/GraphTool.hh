@@ -56,6 +56,6 @@ protected:
 
 //=========================================================================
 // print table from GraphTool's TGraph
-ostream & operator<<( ostream &os, const GraphTool & d );
+std::ostream & operator<<( std::ostream &os, const GraphTool & d );
 
 #endif

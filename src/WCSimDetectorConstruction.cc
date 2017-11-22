@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "WCSimDetectorConstruction.hh"
 #include "WCSimDetectorMessenger.hh"
 #include "WCSimTuningParameters.hh"
@@ -16,7 +18,11 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4SolidStore.hh"
 
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+
 std::map<int, G4Transform3D> WCSimDetectorConstruction::tubeIDMap;
+std::map<int, std::pair<int, int> > WCSimDetectorConstruction::mPMTIDMap;
 //std::map<int, cyl_location>  WCSimDetectorConstruction::tubeCylLocation;
 //hash_map<std::string, int, hash<std::string> > 
 //WCSimDetectorConstruction::tubeLocationMap_old;    //deprecated !!
@@ -28,7 +34,7 @@ WCSimDetectorConstruction::tubeLocationMap;
 
 WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuningParameters* WCSimTuningPars):WCSimTuningParams(WCSimTuningPars)
 {
-	
+  std::cout<<"WCSimDetectorConstruction: one"<<std::endl;
   // Decide if (only for the case of !1kT detector) should be upright or horizontal
   isUpright = false;
   isEggShapedHyperK  = false;
@@ -41,19 +47,25 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
   //-----------------------------------------------------
   // Create Materials
   //-----------------------------------------------------
+  std::cout<<"WCSimDetectorConstruction: two"<<std::endl;
     
   ConstructMaterials();
+
+    std::cout<<"WCSimDetectorConstruction :3"<<std::endl;
 
   //-----------------------------------------------------
   // Initialize things related to the tubeID
   //-----------------------------------------------------
 
   WCSimDetectorConstruction::tubeIDMap.clear();
+  WCSimDetectorConstruction::mPMTIDMap.clear();
   //WCSimDetectorConstruction::tubeCylLocation.clear();// (JF) Removed
   WCSimDetectorConstruction::tubeLocationMap.clear();
   WCSimDetectorConstruction::PMTLogicalVolumes.clear();
   totalNumPMTs = 0;
   WCPMTExposeHeight= 0.;
+    std::cout<<"WCSimDetectorConstruction: 4"<<std::endl;
+
 
   //---------------------------------------------------
   // Need to define defaults for all mPMT parameters 
@@ -65,6 +77,8 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
   dist_pmt_vessel = 0.*mm;
   orientation = PERPENDICULAR;
   mPMT_ID_PMT = "PMT3inchR12199_02";
+  std::cout<<"WCSimDetectorConstruction: 5"<<std::endl;
+
   mPMT_OD_PMT = "";
   mPMT_outer_material = "Water";
   mPMT_inner_material = "";
@@ -81,6 +95,7 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
   mPMT_pmt_openingAngle = 0.*CLHEP::deg;
   
 
+  std::cout<<"WCSimDetectorConstruction: six"<<std::endl;
 
   //SetTestSinglemPMTGeometry();
   SetSuperKGeometry();
@@ -100,6 +115,8 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
    //default is to use collection efficiency
   SetPMT_Coll_Eff(1);
   // set default visualizer to OGLSX
+    std::cout<<"WCSimDetectorConstruction: seven"<<std::endl;
+
   SetVis_Choice("OGLSX");
 
 
@@ -108,6 +125,22 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
   //-----------------------------------------------------
 
   messenger = new WCSimDetectorMessenger(this);
+
+  std::cout<<"WCSimDetectorConstruction: eight"<<std::endl;
+
+  // Get WCSIMDIR
+  
+  const char * env_wcsim = std::getenv("WCSIMDIR");
+  if ( env_wcsim != NULL ) std::cout<<"WCSIMDIR="<<env_wcsim<<std::endl;
+  if ( env_wcsim != NULL && env_wcsim != "" ){
+    wcsimdir_path = env_wcsim;
+  } else {
+    wcsimdir_path = "./";
+  }
+  std::cout<<"WCSIMDIR="<<wcsimdir_path<<std::endl;
+  
+    std::cout<<"WCSimDetectorConstruction: done"<<std::endl;
+
 }
 
 #include "G4GeometryManager.hh"
@@ -275,6 +308,7 @@ G4VPhysicalVolume* WCSimDetectorConstruction::Construct()
 
   // Reset the tubeID and tubeLocation maps before refilling them
   tubeIDMap.clear();
+  mPMTIDMap.clear();
   tubeLocationMap.clear();
 
 
